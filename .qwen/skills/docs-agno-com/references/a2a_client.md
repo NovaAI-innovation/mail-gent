@@ -1,0 +1,72 @@
+# A2A Client
+
+**Source:** https://docs.agno.com/agent-os/client/a2a-client.md
+**Section:** Docs
+
+**Description:** Connect to any A2A-compatible agent server
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# A2A Client
+
+> Connect to any A2A-compatible agent server
+
+The `A2AClient` provides a Python interface for communicating with any [A2A protocol](https://a2a-protocol.org/) compatible server. This includes:
+
+* Agno AgentOS instances with A2A interface enabled
+* Google ADK agents
+* Any other A2A-compatible agent server
+
+## Quick Start
+
+### Connecting to Agno AgentOS via A2A interface
+
+```python  theme={null}
+import asyncio
+from agno.client.a2a import A2AClient
+
+async def main():
+    # Connect to an Agno AgentOS A2A endpoint
+    client = A2AClient("http://localhost:7003/a2a/agents/my-agent")
+
+    # Send a message
+    result = await client.send_message(message="Hello!")
+    print(result.content)
+
+asyncio.run(main())
+```
+
+### Connecting to Google ADK
+
+Google ADK uses JSON-RPC mode:
+
+```python  theme={null}
+from agno.client.a2a import A2AClient
+
+client = A2AClient("http://localhost:8001/", protocol="json-rpc")
+result = await client.send_message(message="Hello!")
+```
+
+## Streaming Responses
+
+Stream responses in real-time:
+
+```python  theme={null}
+from agno.client.a2a import A2AClient
+
+client = A2AClient("http://localhost:7003/a2a/agents/my-agent")
+
+async for event in client.stream_message(message="Tell me a story"):
+    if event.is_content and event.content:
+        print(event.content, end="", flush=True)
+```
+
+## Developer Resources
+
+* [A2A Protocol Documentation](https://a2a-protocol.org/)
+* [A2AClient Reference](/reference/clients/a2a-client)
+* [Agno A2A Interface](/agent-os/interfaces/a2a/introduction)

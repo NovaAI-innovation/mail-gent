@@ -1,0 +1,99 @@
+# Basic Agent as Judge
+
+**Source:** https://docs.agno.com/evals/agent-as-judge/usage/agent-as-judge-basic.md
+**Section:** Docs
+
+**Description:** Basic usage of Agent as Judge evaluation with numeric scoring and failure callbacks
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Basic Agent as Judge
+
+> Basic usage of Agent as Judge evaluation with numeric scoring and failure callbacks
+
+This example demonstrates basic Agent as Judge evaluation with numeric scoring (1-10 scale) and an `on_fail` callback for handling evaluation failures.
+
+<Steps>
+  <Step title="Add the following code to your Python file">
+    ```python agent_as_judge_basic.py theme={null}
+    from agno.agent import Agent
+    from agno.db.sqlite import SqliteDb
+    from agno.eval.agent_as_judge import AgentAsJudgeEval, AgentAsJudgeEvaluation
+    from agno.models.openai import OpenAIResponses
+
+
+    def on_evaluation_failure(evaluation: AgentAsJudgeEvaluation):
+        """Callback triggered when evaluation fails (score < threshold)."""
+        print(f"Evaluation failed - Score: {evaluation.score}/10")
+        print(f"Reason: {evaluation.reason[:100]}...")
+
+
+    # Setup database to persist eval results
+    db = SqliteDb(db_file="tmp/agent_as_judge_basic.db")
+
+    agent = Agent(
+        model=OpenAIResponses(id="gpt-5.2"),
+        instructions="You are a technical writer. Explain concepts clearly and concisely.",
+        db=db,
+    )
+
+    response = agent.run("Explain what an API is")
+
+    evaluation = AgentAsJudgeEval(
+        name="Explanation Quality",
+        criteria="Explanation should be clear, beginner-friendly, and use simple language",
+        scoring_strategy="numeric",  # Score 1-10
+        threshold=9,  # Pass if score >= 9
+        on_fail=on_evaluation_failure,
+        db=db,
+    )
+
+    result = evaluation.run(
+        input="Explain what an API is",
+        output=str(response.content),
+        print_results=True,
+        print_summary=True,
+    )
+
+    # Query database for stored results
+    print("Database Results:")
+    eval_runs = db.get_eval_runs()
+    print(f"Total evaluations stored: {len(eval_runs)}")
+    if eval_runs:
+        latest = eval_runs[-1]
+        print(f"Eval ID: {latest.run_id}")
+        print(f"Name: {latest.name}")
+
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+        export OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+        $Env:OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run the example">
+    ```bash  theme={null}
+    python agent_as_judge_basic.py
+    ```
+  </Step>
+</Steps>

@@ -1,0 +1,72 @@
+# Azure OpenAI with Reasoning Tools
+
+**Source:** https://docs.agno.com/reasoning/usage/tools/azure-openai-reasoning-tools.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Azure OpenAI with Reasoning Tools
+
+<Steps>
+  <Step title="Add the following code to your Python file">
+    ```python azure_openai_reasoning_tools.py theme={null}
+    from agno.agent import Agent
+    from agno.models.azure.openai_chat import AzureOpenAI
+    from agno.tools.hackernews import HackerNewsTools
+    from agno.tools.reasoning import ReasoningTools
+
+    reasoning_agent = Agent(
+        model=AzureOpenAI(id="gpt-5.2"),
+        tools=[
+            HackerNewsTools(),
+            ReasoningTools(
+                think=True,
+                analyze=True,
+                add_instructions=True,
+                add_few_shot=True,
+            ),
+        ],
+        instructions="Use tables where possible. Think about the problem step by step.",
+        markdown=True,
+    )
+
+    reasoning_agent.print_response(
+        "Write a report comparing NVDA to TSLA.",
+        stream=True,
+        show_full_reasoning=True,
+    )
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai anthropic ddgs
+    ```
+  </Step>
+
+  <Step title="Export your API keys">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+        export OPENAI_API_KEY="your_openai_api_key_here"
+        export ANTHROPIC_API_KEY="your_anthropic_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+        $Env:OPENAI_API_KEY="your_openai_api_key_here"
+        $Env:ANTHROPIC_API_KEY="your_anthropic_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python azure_openai_reasoning_tools.py
+    ```
+  </Step>
+</Steps>

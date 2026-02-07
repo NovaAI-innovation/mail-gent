@@ -1,0 +1,153 @@
+# AG-UI
+
+**Source:** https://docs.agno.com/agent-os/interfaces/ag-ui/introduction.md
+**Section:** Docs
+
+**Description:** Expose Agno agents via the AG-UI protocol
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# AG-UI
+
+> Expose Agno agents via the AG-UI protocol
+
+AG-UI, the [Agent-User Interaction Protocol](https://github.com/ag-ui-protocol/ag-ui), standardizes how AI agents connect to frontend applications.
+
+<Note>
+  **Migration from Apps**: For migration from `AGUIApp`, see the [v2 migration guide](/other/v2-migration#7-apps-interfaces) for complete steps.
+</Note>
+
+## Example usage
+
+<Steps>
+  <Step title="Install backend dependencies">
+    ```bash  theme={null}
+    uv pip install ag-ui-protocol
+    ```
+  </Step>
+
+  <Step title="Run the backend">
+    Expose an Agno agent through the AG-UI interface using `AgentOS` and `AGUI`.
+
+    ```python basic.py theme={null}
+    from agno.agent.agent import Agent
+    from agno.models.openai import OpenAIResponses
+    from agno.os import AgentOS
+    from agno.os.interfaces.agui import AGUI
+
+    chat_agent = Agent(model=OpenAIResponses(id="gpt-5.2"))
+
+    agent_os = AgentOS(agents=[chat_agent], interfaces=[AGUI(agent=chat_agent)])
+    app = agent_os.get_app()
+
+    if __name__ == "__main__":
+        agent_os.serve(app="basic:app", reload=True)
+    ```
+  </Step>
+
+  <Step title="Run the frontend">
+    Use Dojo (`ag-ui`'s frontend) as an advanced, customizable interface for AG-UI agents.
+
+    1. Clone: `git clone https://github.com/ag-ui-protocol/ag-ui.git`
+    2. Install dependencies in `/ag-ui/typescript-sdk`: `pnpm install`
+    3. Build the Agno package in `/ag-ui/integrations/agno`: `pnpm run build`
+    4. Start Dojo following the instructions in the repository.
+  </Step>
+
+  <Step title="Chat with the Agno Agent">
+    With Dojo running, open `http://localhost:3000` and select the Agno agent.
+  </Step>
+</Steps>
+
+Additional examples are available in the [cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/06_agent_os/interfaces/agui/).
+
+## Custom Events
+
+Custom events created in tools are automatically delivered to AG-UI in the AG-UI custom event format.
+
+**Creating custom events:**
+
+```python  theme={null}
+from dataclasses import dataclass
+from agno.run.agent import CustomEvent
+
+@dataclass
+class CustomerProfileEvent(CustomEvent):
+    customer_name: str
+    customer_email: str
+```
+
+**Yielding from tools:**
+
+```python  theme={null}
+from agno.tools import tool
+
+@tool()
+async def get_customer_profile(customer_id: str):
+    customer = fetch_customer(customer_id)
+    
+    yield CustomerProfileEvent(
+        customer_name=customer["name"],
+        customer_email=customer["email"],
+    )
+    
+    return f"Profile retrieved for {customer['name']}"
+```
+
+Custom events are streamed in real-time to the AG-UI frontend.
+
+See [Custom Events documentation](/agents/running-agents#custom-events) for more details.
+
+## Core Components
+
+* `AGUI` (interface): Wraps an Agno `Agent` or `Team` into an AG-UI compatible FastAPI router.
+* `AgentOS.serve`: Serves the FastAPI app (including the AGUI router) with Uvicorn.
+
+`AGUI` mounts protocol-compliant routes on the app.
+
+## `AGUI` interface
+
+Main entry point for AG-UI exposure.
+
+### Initialization Parameters
+
+| Parameter | Type              | Default | Description            |
+| --------- | ----------------- | ------- | ---------------------- |
+| `agent`   | `Optional[Agent]` | `None`  | Agno `Agent` instance. |
+| `team`    | `Optional[Team]`  | `None`  | Agno `Team` instance.  |
+
+Provide `agent` or `team`.
+
+### Key Method
+
+| Method       | Parameters               | Return Type | Description                                              |
+| ------------ | ------------------------ | ----------- | -------------------------------------------------------- |
+| `get_router` | `use_async: bool = True` | `APIRouter` | Returns the AG-UI FastAPI router and attaches endpoints. |
+
+## Endpoints
+
+Mounted at the interface's route prefix (root by default):
+
+* `POST /agui`: Main entrypoint. Accepts `RunAgentInput` from `ag-ui-protocol`. Streams AG-UI events.
+* `GET /status`: Health/status endpoint for the interface.
+
+Refer to `ag-ui-protocol` docs for payload details.
+
+## Serving AgentOS
+
+Use `AgentOS.serve` to run the app with Uvicorn.
+
+### Parameters
+
+| Parameter | Type                  | Default       | Description                            |
+| --------- | --------------------- | ------------- | -------------------------------------- |
+| `app`     | `Union[str, FastAPI]` | required      | FastAPI app instance or import string. |
+| `host`    | `str`                 | `"localhost"` | Host to bind.                          |
+| `port`    | `int`                 | `7777`        | Port to bind.                          |
+| `reload`  | `bool`                | `False`       | Enable auto-reload for development.    |
+
+See [cookbook examples](https://github.com/agno-agi/agno/tree/main/cookbook/06_agent_os/interfaces/agui/) for updated interface patterns.

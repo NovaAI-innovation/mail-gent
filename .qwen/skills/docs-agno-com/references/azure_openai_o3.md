@@ -1,0 +1,67 @@
+# Azure OpenAI o3
+
+**Source:** https://docs.agno.com/reasoning/usage/models/azure-openai/o3.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Azure OpenAI o3
+
+<Steps>
+  <Step title="Add the following code to your Python file">
+    ```python azure_openai.py theme={null}
+    from agno.agent import Agent
+    from agno.models.azure.openai_chat import AzureOpenAI
+    from agno.tools.yfinance import YFinanceTools
+
+    agent = Agent(
+        model=AzureOpenAI(id="o3"),
+        tools=[
+            YFinanceTools(
+                stock_price=True,
+                analyst_recommendations=True,
+                company_info=True,
+                company_news=True,
+            )
+        ],
+        instructions="Use tables to display data.",
+        markdown=True,
+    )
+    agent.print_response("Write a report comparing NVDA to TSLA", stream=True)
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U openai agno yfinance
+    ```
+  </Step>
+
+  <Step title="Set your Azure OpenAI credentials">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+        export AZURE_OPENAI_API_KEY="xxx"
+        export AZURE_OPENAI_ENDPOINT="xxx"
+        export AZURE_DEPLOYMENT="xxx"
+      ```
+
+      ```bash Windows theme={null}
+        $Env:AZURE_OPENAI_API_KEY="xxx"
+        $Env:AZURE_OPENAI_ENDPOINT="xxx"
+        $Env:AZURE_DEPLOYMENT="xxx"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python azure_openai.py
+    ```
+  </Step>
+</Steps>

@@ -1,0 +1,146 @@
+# Background Hooks (Global)
+
+**Source:** https://docs.agno.com/agent-os/usage/background-hooks-global.md
+**Section:** Docs
+
+**Description:** Run all agent hooks as background tasks using AgentOS
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Background Hooks (Global)
+
+> Run all agent hooks as background tasks using AgentOS
+
+This example demonstrates how to run **all** hooks as FastAPI background tasks by enabling `run_hooks_in_background` at the AgentOS level.
+
+<Steps>
+  <Step title="Create a Python file">
+    ```python background_hooks_global.py theme={null}
+    import asyncio
+
+    from agno.agent import Agent
+    from agno.db.sqlite import SqliteDb
+    from agno.models.openai import OpenAIResponses
+    from agno.os import AgentOS
+    from agno.run.agent import RunInput
+
+
+    # Pre-hook for logging requests
+    def log_request(run_input: RunInput, agent):
+        """
+        This pre-hook will run in the background before the agent processes the request.
+        Note: Pre-hooks in background mode cannot modify run_input.
+        """
+        print(f"[Background Pre-Hook] Request received for agent: {agent.name}")
+        print(f"[Background Pre-Hook] Input: {run_input.input_content}")
+
+
+    # Post-hook for logging analytics
+    async def log_analytics(run_output, agent, session):
+        """
+        This post-hook will run in the background after the response is sent.
+        It won't block the API response.
+        """
+        print(f"[Background Post-Hook] Logging analytics for run: {run_output.run_id}")
+        print(f"[Background Post-Hook] Agent: {agent.name}")
+        print(f"[Background Post-Hook] Session: {session.session_id}")
+
+        # Simulate a slow operation
+        await asyncio.sleep(2)
+        print("[Background Post-Hook] Analytics logged successfully!")
+
+
+    # Another post-hook for sending notifications
+    async def send_notification(run_output, agent):
+        """
+        Another background task that sends notifications without blocking the response.
+        """
+        print(f"[Background Post-Hook] Sending notification for agent: {agent.name}")
+        # Simulate a slow operation
+        await asyncio.sleep(3)
+        print("[Background Post-Hook] Notification sent!")
+
+
+    # Create an agent with hooks
+    agent = Agent(
+        id="background-task-agent",
+        name="BackgroundTaskAgent",
+        model=OpenAIResponses(id="gpt-5.2"),
+        instructions="You are a helpful assistant",
+        db=SqliteDb(db_file="tmp/agent.db"),
+        pre_hooks=[log_request],
+        post_hooks=[log_analytics, send_notification],
+        markdown=True,
+    )
+
+    # Create AgentOS with background hooks enabled
+    agent_os = AgentOS(
+        agents=[agent],
+        run_hooks_in_background=True,  # All hooks run in background
+    )
+
+    # Get the FastAPI app
+    app = agent_os.get_app()
+
+    if __name__ == "__main__":
+        agent_os.serve(app="background_hooks_global:app", port=7777, reload=True)
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai uvicorn
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+      export OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+      $Env:OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run the server">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+      python background_hooks_global.py
+      ```
+
+      ```bash Windows theme={null}
+      python background_hooks_global.py
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Test the endpoint">
+    ```bash  theme={null}
+    curl -X POST http://localhost:7777/agents/background-task-agent/runs \
+      -F "message=Hello, how are you?" \
+      -F "stream=false"
+    ```
+
+    The response will be returned immediately. Check the server logs to see the background hooks executing after the response is sent.
+  </Step>
+</Steps>
+
+## What Happens
+
+1. The agent processes the request
+2. The response is sent immediately to the user
+3. All pre-hooks and post-hooks run in the background
+4. The user doesn't have to wait for these tasks to complete
+
+<Note>
+  With `run_hooks_in_background=True` on AgentOS, **all** hooks for all agents run in the background. Use the `@hook` decorator for more granular control over which hooks run in the background.
+</Note>

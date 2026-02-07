@@ -1,0 +1,71 @@
+# Comparison Accuracy Evaluation
+
+**Source:** https://docs.agno.com/evals/accuracy/usage/accuracy-comparison.md
+**Section:** Docs
+
+**Description:** Example showing how to evaluate agent accuracy on comparison tasks.
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Comparison Accuracy Evaluation
+
+> Example showing how to evaluate agent accuracy on comparison tasks.
+
+<Steps>
+  <Step title="Create a Python file">
+    ```python accuracy_comparison.py theme={null}
+    from typing import Optional
+
+    from agno.agent import Agent
+    from agno.eval.accuracy import AccuracyEval, AccuracyResult
+    from agno.models.openai import OpenAIResponses
+    from agno.tools.calculator import CalculatorTools
+
+    evaluation = AccuracyEval(
+        name="Comparison Evaluation",
+        model=OpenAIResponses(id="gpt-5.2"),
+        agent=Agent(
+            model=OpenAIResponses(id="gpt-5.2"),
+            tools=[CalculatorTools()],
+            instructions="You must use the calculator tools for comparisons.",
+        ),
+        input="9.11 and 9.9 -- which is bigger?",
+        expected_output="9.9",
+        additional_guidelines="Its ok for the output to include additional text or information relevant to the comparison.",
+    )
+
+    result: Optional[AccuracyResult] = evaluation.run(print_results=True)
+    assert result is not None and result.avg_score >= 8
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U openai agno
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+        export OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+        $Env:OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python accuracy_comparison.py
+    ```
+  </Step>
+</Steps>
