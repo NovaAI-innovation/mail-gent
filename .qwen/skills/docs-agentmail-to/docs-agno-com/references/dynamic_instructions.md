@@ -1,0 +1,68 @@
+# Dynamic Instructions
+
+**Source:** https://docs.agno.com/context/agent/dynamic-instructions.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Dynamic Instructions
+
+This example demonstrates how to create dynamic instructions that change based on session state, allowing personalized agent behavior for different users.
+
+## Code
+
+```python dynamic_instructions.py theme={null}
+from agno.agent import Agent
+from agno.run import RunContext
+
+def get_instructions(run_context: RunContext):
+    if not run_context.session_state:
+        run_context.session_state = {}
+
+    if run_context.session_state.get("current_user_id"):
+        return f"Make the story about {run_context.session_state.get('current_user_id')}."
+
+    return "Make the story about the user."
+
+
+agent = Agent(instructions=get_instructions)
+agent.print_response("Write a 2 sentence story", user_id="john.doe")
+```
+
+## Usage
+
+<Steps>
+  <Step title="Create a Python file">
+    Create `dynamic_instructions.py` with the code above.
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+      export OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+      $Env:OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python dynamic_instructions.py
+    ```
+  </Step>
+</Steps>

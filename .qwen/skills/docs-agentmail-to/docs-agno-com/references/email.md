@@ -1,0 +1,60 @@
+# Email
+
+**Source:** https://docs.agno.com/tools/toolkits/social/email.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Email
+
+**EmailTools** enable an Agent to send an email to a user. The Agent can send an email to a user with a specific subject and body.
+
+## Example
+
+```python cookbook/14_tools/email_tools.py theme={null}
+from agno.agent import Agent
+from agno.tools.email import EmailTools
+
+receiver_email = "<receiver_email>"
+sender_email = "<sender_email>"
+sender_name = "<sender_name>"
+sender_passkey = "<sender_passkey>"
+
+agent = Agent(
+    tools=[
+        EmailTools(
+            receiver_email=receiver_email,
+            sender_email=sender_email,
+            sender_name=sender_name,
+            sender_passkey=sender_passkey,
+        )
+    ]
+)
+
+agent.print_response("send an email to <receiver_email>")
+```
+
+## Toolkit Params
+
+| Parameter           | Type            | Default | Description                         |
+| ------------------- | --------------- | ------- | ----------------------------------- |
+| `receiver_email`    | `Optional[str]` | `None`  | The email address of the receiver.  |
+| `sender_name`       | `Optional[str]` | `None`  | The name of the sender.             |
+| `sender_email`      | `Optional[str]` | `None`  | The email address of the sender.    |
+| `sender_passkey`    | `Optional[str]` | `None`  | The passkey for the sender's email. |
+| `enable_email_user` | `bool`          | `True`  | Enable the email\_user function.    |
+| `all`               | `bool`          | `False` | Enable all available functions.     |
+
+## Toolkit Functions
+
+| Function     | Description                                                                                                                                                                                                                       |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `email_user` | Emails the user with the given subject and body. Parameters include `subject` (str) for the email subject and `body` (str) for the email content. Currently works with Gmail. Returns "email sent successfully" or error message. |
+
+## Developer Resources
+
+* View [Tools](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/email.py)

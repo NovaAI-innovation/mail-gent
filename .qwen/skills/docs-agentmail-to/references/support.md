@@ -1,0 +1,25 @@
+# Support
+
+**Source:** https://docs.agentmail.to/support.mdx
+**Section:** Docs
+
+**Description:** Get help with AgentMail through our support channels.
+
+---
+
+***
+
+title: Support
+slug: support
+description: Get help with AgentMail through our support channels.
+------------------------------------------------------------------
+
+## Need Help?
+
+<Cards>
+  <Card title="GitHub Issues" icon="fa-brands fa-github" href="https://github.com/agentmail-to" />
+
+  <Card title="Discord Community" icon="fa-brands fa-discord" href="https://discord.gg/ZYN7f7KPjS" />
+
+  <Card title="Email Support" icon="fa-solid fa-envelope" href="mailto:support@agentmail.cc" />
+</Cards>

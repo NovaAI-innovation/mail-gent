@@ -1,0 +1,150 @@
+# Background Hooks (Per-Hook)
+
+**Source:** https://docs.agno.com/agent-os/usage/background-hooks-decorator.md
+**Section:** Docs
+
+**Description:** Run specific hooks as background tasks using the @hook decorator
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Background Hooks (Per-Hook)
+
+> Run specific hooks as background tasks using the @hook decorator
+
+This example demonstrates how to run **specific** hooks as background tasks using the `@hook` decorator, while other hooks run synchronously.
+
+<Steps>
+  <Step title="Create a Python file">
+    ```python background_hooks_decorator.py theme={null}
+    import asyncio
+
+    from agno.agent import Agent
+    from agno.db.sqlite import SqliteDb
+    from agno.hooks import hook
+    from agno.models.openai import OpenAIResponses
+    from agno.os import AgentOS
+    from agno.run.agent import RunInput
+
+
+    @hook(run_in_background=True)
+    def log_request(run_input: RunInput, agent):
+        """
+        This pre-hook runs in the background.
+        Note: Pre-hooks in background mode cannot modify run_input.
+        """
+        print(f"[Background Pre-Hook] Request received for agent: {agent.name}")
+        print(f"[Background Pre-Hook] Input: {run_input.input_content}")
+
+
+    async def log_analytics(run_output, agent, session):
+        """
+        This post-hook runs synchronously (no decorator).
+        It will block the response until complete.
+        """
+        print(f"[Sync Post-Hook] Logging analytics for run: {run_output.run_id}")
+        print(f"[Sync Post-Hook] Agent: {agent.name}")
+        print(f"[Sync Post-Hook] Session: {session.session_id}")
+        print("[Sync Post-Hook] Analytics logged successfully!")
+
+
+    @hook(run_in_background=True)
+    async def send_notification(run_output, agent):
+        """
+        This post-hook runs in the background (has decorator).
+        It won't block the API response.
+        """
+        print(f"[Background Post-Hook] Sending notification for agent: {agent.name}")
+        await asyncio.sleep(3)
+        print("[Background Post-Hook] Notification sent!")
+
+
+    # Create an agent with mixed hooks
+    agent = Agent(
+        id="background-task-agent",
+        name="BackgroundTaskAgent",
+        model=OpenAIResponses(id="gpt-5.2"),
+        instructions="You are a helpful assistant",
+        db=SqliteDb(db_file="tmp/agent.db"),
+        pre_hooks=[log_request],  # Runs in background
+        post_hooks=[log_analytics, send_notification],  # log_analytics is sync, send_notification is background
+        markdown=True,
+    )
+
+    # Create AgentOS (run_hooks_in_background is False by default)
+    agent_os = AgentOS(
+        agents=[agent],
+    )
+
+    # Get the FastAPI app
+    app = agent_os.get_app()
+
+    if __name__ == "__main__":
+        agent_os.serve(app="background_hooks_decorator:app", port=7777, reload=True)
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai uvicorn
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+      export OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+      $Env:OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run the server">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+      python background_hooks_decorator.py
+      ```
+
+      ```bash Windows theme={null}
+      python background_hooks_decorator.py
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Test the endpoint">
+    ```bash  theme={null}
+    curl -X POST http://localhost:7777/agents/background-task-agent/runs \
+      -F "message=Hello, how are you?" \
+      -F "stream=false"
+    ```
+
+    The response will be returned after `log_analytics` completes. Check the server logs to see `log_request` and `send_notification` executing in the background.
+  </Step>
+</Steps>
+
+## What Happens
+
+1. The agent processes the request
+2. `log_analytics` runs synchronously (blocks the response)
+3. The response is sent to the user
+4. `log_request` and `send_notification` run in the background
+5. The user only waits for `log_analytics` to complete
+
+## Comparison: Global vs Per-Hook
+
+| Approach                                | Use Case                                                   |
+| --------------------------------------- | ---------------------------------------------------------- |
+| `AgentOS(run_hooks_in_background=True)` | All hooks are non-critical, maximize response speed        |
+| `@hook(run_in_background=True)`         | Mix of critical (sync) and non-critical (background) hooks |
+
+<Tip>
+  Use the `@hook` decorator when you have hooks that must complete before the response (e.g., output validation) alongside hooks that can run later (e.g., notifications).
+</Tip>

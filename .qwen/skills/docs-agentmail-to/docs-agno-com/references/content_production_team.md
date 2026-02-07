@@ -1,0 +1,54 @@
+# Content Production Team
+
+**Source:** https://docs.agno.com/production/applications/content-team.md
+**Section:** Docs
+
+**Description:** Multi-agent team with Writer, Editor, SEO Optimizer, and Publisher working together.
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Content Production Team
+
+> Multi-agent team with Writer, Editor, SEO Optimizer, and Publisher working together.
+
+<Info>
+  This application is coming soon. Join our [Discord](https://agno.link/discord) to get notified when it's available.
+</Info>
+
+## Overview
+
+A multi-agent content production team where specialized agents collaborate to create, edit, optimize, and publish content.
+
+## Planned Agents
+
+| Agent             | Role                                   |
+| ----------------- | -------------------------------------- |
+| **Writer**        | Draft initial content based on briefs  |
+| **Editor**        | Review for clarity, grammar, and style |
+| **SEO Optimizer** | Optimize for search visibility         |
+| **Publisher**     | Format and publish to platforms        |
+
+## Planned Features
+
+* End-to-end content pipeline
+* Style guide enforcement
+* SEO keyword integration
+* Multi-format output (blog, social, email)
+* Content calendar integration
+* A/B variant generation
+
+## Use Cases
+
+* Blog post production
+* Marketing content creation
+* Social media content
+* Email newsletter writing
+* Product documentation
+
+## Request This Application
+
+Have specific requirements? Join our [Discord](https://agno.link/discord) and let us know what you need.

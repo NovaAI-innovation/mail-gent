@@ -1,0 +1,111 @@
+# Using Reference Dependencies in Team Instructions
+
+**Source:** https://docs.agno.com/dependencies/team/reference-dependencies.md
+**Section:** Docs
+
+**Description:** This example demonstrates how to use reference dependencies by defining them in the team constructor and referencing them directly in team instructions. This approach allows dependencies to be automatically injected into the team's context and referenced using template variables in instructions.
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Using Reference Dependencies in Team Instructions
+
+> This example demonstrates how to use reference dependencies by defining them in the team constructor and referencing them directly in team instructions. This approach allows dependencies to be automatically injected into the team's context and referenced using template variables in instructions.
+
+<Steps>
+  <Step title="Create a Python file">
+    ```python reference_dependencies.py theme={null}
+    from datetime import datetime
+
+    from agno.agent import Agent
+    from agno.models.openai import OpenAIResponses
+    from agno.team import Team
+
+
+    def get_user_profile(user_id: str = "john_doe") -> dict:
+        """Get user profile information that can be referenced in responses."""
+        profiles = {
+            "john_doe": {
+                "name": "John Doe",
+                "preferences": {
+                    "communication_style": "professional",
+                    "topics_of_interest": ["AI/ML", "Software Engineering", "Finance"],
+                    "experience_level": "senior",
+                },
+                "location": "San Francisco, CA",
+                "role": "Senior Software Engineer",
+            }
+        }
+
+        return profiles.get(user_id, {"name": "Unknown User"})
+
+
+    def get_current_context() -> dict:
+        """Get current contextual information like time, weather, etc."""
+        return {
+            "current_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timezone": "PST",
+            "day_of_week": datetime.now().strftime("%A"),
+        }
+
+
+    profile_agent = Agent(
+        name="ProfileAnalyst",
+        model=OpenAIResponses(id="gpt-5.2"),
+        instructions="You analyze user profiles and provide personalized recommendations.",
+    )
+
+    context_agent = Agent(
+        name="ContextAnalyst",
+        model=OpenAIResponses(id="gpt-5.2"),
+        instructions="You analyze current context and timing to provide relevant insights.",
+    )
+
+    team = Team(
+        name="PersonalizationTeam",
+        model=OpenAIResponses(id="gpt-5.2"),
+        members=[profile_agent, context_agent],
+        dependencies={
+            "user_profile": get_user_profile,
+            "current_context": get_current_context,
+        },
+        instructions=[
+            "You are a personalization team that provides personalized recommendations based on the user's profile and context.",
+            "Here is the user profile: {user_profile}",
+            "Here is the current context: {current_context}",
+        ],
+        debug_mode=True,
+        markdown=True,
+    )
+
+    response = team.run(
+        "Please provide me with a personalized summary of today's priorities based on my profile and interests.",
+    )
+
+    print(response.content)
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    ```bash  theme={null}
+    export OPENAI_API_KEY=your_openai_api_key_here
+    ```
+  </Step>
+
+  <Step title="Run Team">
+    ```bash  theme={null}
+    python reference_dependencies.py
+    ```
+  </Step>
+</Steps>

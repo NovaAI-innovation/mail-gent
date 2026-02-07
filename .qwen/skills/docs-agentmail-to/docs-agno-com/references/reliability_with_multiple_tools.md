@@ -1,0 +1,78 @@
+# Reliability with Multiple Tools
+
+**Source:** https://docs.agno.com/evals/reliability/usage/reliability-with-multiple-tools.md
+**Section:** Docs
+
+**Description:** Example showing how to assert an Agno Agent is making multiple expected tool calls.
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Reliability with Multiple Tools
+
+> Example showing how to assert an Agno Agent is making multiple expected tool calls.
+
+<Steps>
+  <Step title="Create a Python file">
+    ```python reliability_with_multiple_tools.py theme={null}
+    from typing import Optional
+
+    from agno.agent import Agent
+    from agno.eval.reliability import ReliabilityEval, ReliabilityResult
+    from agno.models.openai import OpenAIResponses
+    from agno.run.agent import RunOutput
+    from agno.tools.calculator import CalculatorTools
+
+
+    def multiply_and_exponentiate():
+        agent = Agent(
+            model=OpenAIResponses(id="gpt-5.2"),
+            tools=[CalculatorTools(add=True, multiply=True, exponentiate=True)],
+        )
+        response: RunOutput = agent.run(
+            "What is 10*5 then to the power of 2? do it step by step"
+        )
+        evaluation = ReliabilityEval(
+            name="Tool Calls Reliability",
+            agent_response=response,
+            expected_tool_calls=["multiply", "exponentiate"],
+        )
+        result: Optional[ReliabilityResult] = evaluation.run(print_results=True)
+        if result:
+            result.assert_passed()
+
+
+    if __name__ == "__main__":
+        multiply_and_exponentiate()
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U openai agno
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+        export OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+        $Env:OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python reliability_with_multiple_tools.py
+    ```
+  </Step>
+</Steps>

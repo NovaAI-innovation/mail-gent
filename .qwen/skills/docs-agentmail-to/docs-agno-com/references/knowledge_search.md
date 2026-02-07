@@ -1,0 +1,109 @@
+# Knowledge Search
+
+**Source:** https://docs.agno.com/agent-os/usage/client/knowledge-search.md
+**Section:** Docs
+
+**Description:** Search and manage knowledge base content
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Knowledge Search
+
+> Search and manage knowledge base content
+
+<Steps>
+  <Step title="Create a Python file">
+    ```python knowledge_search.py theme={null}
+    import asyncio
+
+    from agno.client import AgentOSClient
+
+
+    async def main():
+        client = AgentOSClient(base_url="http://localhost:7777")
+
+        print("=" * 60)
+        print("Knowledge Search")
+        print("=" * 60)
+
+        # Get knowledge configuration
+        print("\n1. Getting knowledge config...")
+        try:
+            config = await client.get_knowledge_config()
+            print(f"   Available readers: {config.readers if hasattr(config, 'readers') else 'N/A'}")
+            print(f"   Available chunkers: {config.chunkers if hasattr(config, 'chunkers') else 'N/A'}")
+        except Exception as e:
+            print(f"   Knowledge not configured: {e}")
+            return
+
+        # List existing content
+        print("\n2. Listing content...")
+        try:
+            content = await client.list_knowledge_content()
+            print(f"   Found {len(content.data)} content items")
+            for item in content.data[:5]:
+                print(f"   - {item.id}: {item.name if hasattr(item, 'name') else 'Unnamed'}")
+        except Exception as e:
+            print(f"   Error listing content: {e}")
+
+        # Search knowledge base
+        print("\n3. Searching knowledge base...")
+        try:
+            results = await client.search_knowledge(
+                query="What is Agno?",
+                limit=5,
+            )
+            print(f"   Found {len(results.data)} results")
+            for result in results.data:
+                content_preview = str(result.content)[:100] if hasattr(result, "content") else "N/A"
+                print(f"   - Score: {result.score if hasattr(result, 'score') else 'N/A'}")
+                print(f"     Content: {content_preview}...")
+        except Exception as e:
+            print(f"   Error searching: {e}")
+
+
+    if __name__ == "__main__":
+        asyncio.run(main())
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+      export OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+      $Env:OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Start an AgentOS Server">
+    Make sure you have an AgentOS server running with knowledge configured. See [Creating Your First OS](/agent-os/run-your-os) for setup instructions.
+  </Step>
+
+  <Step title="Run the Client">
+    <CodeGroup>
+      ```bash Mac theme={null}
+      python knowledge_search.py
+      ```
+
+      ```bash Windows theme={null}
+      python knowledge_search.py
+      ```
+    </CodeGroup>
+  </Step>
+</Steps>

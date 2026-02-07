@@ -1,0 +1,54 @@
+# Software Development Team
+
+**Source:** https://docs.agno.com/production/applications/dev-team.md
+**Section:** Docs
+
+**Description:** Multi-agent team with Architect, Coder, Reviewer, and Tester collaborating on features.
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Software Development Team
+
+> Multi-agent team with Architect, Coder, Reviewer, and Tester collaborating on features.
+
+<Info>
+  This application is coming soon. Join our [Discord](https://agno.link/discord) to get notified when it's available.
+</Info>
+
+## Overview
+
+A multi-agent software development team where specialized agents collaborate to architect, implement, review, and test features.
+
+## Planned Agents
+
+| Agent         | Role                                       |
+| ------------- | ------------------------------------------ |
+| **Architect** | Design system architecture and interfaces  |
+| **Coder**     | Implement features based on specifications |
+| **Reviewer**  | Review code for quality and standards      |
+| **Tester**    | Write and run tests, report issues         |
+
+## Planned Features
+
+* End-to-end feature development pipeline
+* Architecture decision documentation
+* Test-driven development support
+* Code quality gates
+* Integration with version control
+* Sprint planning assistance
+
+## Use Cases
+
+* Feature development automation
+* Bug fix workflows
+* Refactoring projects
+* Technical debt reduction
+* Prototype rapid development
+
+## Request This Application
+
+Have specific requirements? Join our [Discord](https://agno.link/discord) and let us know what you need.

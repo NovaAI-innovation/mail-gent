@@ -1,0 +1,73 @@
+# Agent with Image Input
+
+**Source:** https://docs.agno.com/models/providers/cloud/aws-bedrock/usage/image-agent.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Agent with Image Input
+
+AWS Bedrock supports image input with models like `amazon.nova-pro-v1:0`. You can use this to analyze images and get information about them.
+
+## Code
+
+```python image_agent.py theme={null}
+from pathlib import Path
+from agno.agent import Agent
+from agno.media import Image
+from agno.models.aws import AwsBedrock
+from agno.tools.hackernews import HackerNewsTools
+
+agent = Agent(
+    model=AwsBedrock(id="amazon.nova-pro-v1:0"),
+    tools=[HackerNewsTools()],
+    markdown=True,
+)
+
+image_path = Path(__file__).parent.joinpath("sample.jpg")
+
+# Read the image file content as bytes
+with open(image_path, "rb") as img_file:
+    image_bytes = img_file.read()
+
+agent.print_response(
+    "Tell me about this image and give me the latest news about it.",
+    images=[
+        Image(content=image_bytes, format="jpeg"),
+    ],
+)
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set your AWS Credentials">
+    ```bash  theme={null}
+    export AWS_ACCESS_KEY_ID=***
+    export AWS_SECRET_ACCESS_KEY=***
+    export AWS_REGION=***
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U boto3 agno
+    ```
+  </Step>
+
+  <Step title="Add an Image">
+    Place an image file named `sample.jpg` in the same directory as your script.
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python image_agent.py
+    ```
+  </Step>
+</Steps>

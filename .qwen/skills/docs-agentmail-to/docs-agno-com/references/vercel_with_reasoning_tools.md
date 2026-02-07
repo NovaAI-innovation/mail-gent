@@ -1,0 +1,68 @@
+# Vercel with Reasoning Tools
+
+**Source:** https://docs.agno.com/reasoning/usage/tools/vercel-reasoning-tools.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Vercel with Reasoning Tools
+
+<Steps>
+  <Step title="Add the following code to your Python file">
+    ```python vercel_reasoning_tools.py theme={null}
+    from agno.agent import Agent
+    from agno.models.vercel import v0
+    from agno.tools.hackernews import HackerNewsTools
+    from agno.tools.reasoning import ReasoningTools
+
+    reasoning_agent = Agent(
+        model=v0(id="v0-1.0-md"),
+        tools=[
+            ReasoningTools(add_instructions=True, add_few_shot=True),
+            HackerNewsTools(),
+        ],
+        instructions=[
+            "Use tables to display data",
+            "Only output the report, no other text",
+        ],
+        markdown=True,
+    )
+
+    reasoning_agent.print_response(
+        "Write a report on TSLA",
+        stream=True,
+        show_full_reasoning=True,
+    )
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai ddgs
+    ```
+  </Step>
+
+  <Step title="Export your V0 API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+        export V0_API_KEY="your_v0_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+        $Env:V0_API_KEY="your_v0_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python vercel_reasoning_tools.py
+    ```
+  </Step>
+</Steps>

@@ -1,0 +1,69 @@
+# ChromaDB
+
+**Source:** https://docs.agno.com/knowledge/vector-stores/chroma/usage/chroma-db.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# ChromaDB
+
+## Code
+
+```python cookbook/08_knowledge/vector_db/chroma_db/chroma_db.py theme={null}
+from agno.agent import Agent
+from agno.knowledge.knowledge import Knowledge
+from agno.vectordb.chroma import ChromaDb
+
+# Create Knowledge Instance with ChromaDB
+knowledge = Knowledge(
+    name="Basic SDK Knowledge Base",
+    description="Agno 2.0 Knowledge Implementation with ChromaDB",
+    vector_db=ChromaDb(
+        collection="vectors", path="tmp/chromadb", persistent_client=True
+    ),
+)
+
+knowledge.insert(
+        name="Recipes",
+        url="https://agno-public.s3.amazonaws.com/recipes/ThaiRecipes.pdf",
+        metadata={"doc_type": "recipe_book"},
+    )
+
+# Create and use the agent
+agent = Agent(knowledge=knowledge)
+agent.print_response("List down the ingredients to make Massaman Gai", markdown=True)
+
+# Delete operations examples
+vector_db = knowledge.vector_db
+vector_db.delete_by_name("Recipes")
+# or
+vector_db.delete_by_metadata({"user_tag": "Recipes from website"})
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U chromadb pypdf openai agno
+    ```
+  </Step>
+
+  <Step title="Set environment variables">
+    ```bash  theme={null}
+    export OPENAI_API_KEY=xxx
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python cookbook/08_knowledge/vector_db/chroma_db/chroma_db.py
+    ```
+  </Step>
+</Steps>

@@ -1,0 +1,45 @@
+# Pubmed
+
+**Source:** https://docs.agno.com/tools/toolkits/search/pubmed.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Pubmed
+
+**PubmedTools** enable an Agent to search for Pubmed for articles.
+
+## Example
+
+The following agent will search Pubmed for articles related to "ulcerative colitis".
+
+```python cookbook/14_tools/pubmed.py theme={null}
+from agno.agent import Agent
+from agno.tools.pubmed import PubmedTools
+
+agent = Agent(tools=[PubmedTools()])
+agent.print_response("Tell me about ulcerative colitis.")
+```
+
+## Toolkit Params
+
+| Parameter              | Type   | Default                    | Description                                                            |
+| ---------------------- | ------ | -------------------------- | ---------------------------------------------------------------------- |
+| `email`                | `str`  | `"your_email@example.com"` | Specifies the email address to use.                                    |
+| `max_results`          | `int`  | `None`                     | Optional parameter to specify the maximum number of results to return. |
+| `enable_search_pubmed` | `bool` | `True`                     | Enable the search\_pubmed functionality.                               |
+| `all`                  | `bool` | `False`                    | Enable all functionality.                                              |
+
+## Toolkit Functions
+
+| Function        | Description                                                                                                                                                                                                                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `search_pubmed` | Searches PubMed for articles based on a specified query. Parameters include `query` for the search term and `max_results` for the maximum number of results to return (default is 10). Returns a JSON string containing the search results, including publication date, title, and summary. |
+
+## Developer Resources
+
+* View [Tools](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/pubmed.py)

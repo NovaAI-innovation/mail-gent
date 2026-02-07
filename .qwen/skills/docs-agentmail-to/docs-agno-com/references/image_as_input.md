@@ -1,0 +1,43 @@
+# Image As Input
+
+**Source:** https://docs.agno.com/multimodal/agent/usage/image-input.md
+**Section:** Docs
+
+**Description:** Pass images to agents for analysis and description.
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Image As Input
+
+> Pass images to agents for analysis and description.
+
+Agno supports images as input to agents and teams.  Take a look at the [compatibility matrix](/models/compatibility#multimodal-support) to see which models support images as input.
+
+Let's create an agent that can understand images and make tool calls as needed
+
+```python  theme={null}
+    from agno.agent import Agent
+    from agno.media import Image
+    from agno.models.openai import OpenAIResponses
+    from agno.tools.hackernews import HackerNewsTools
+
+    agent = Agent(
+        model=OpenAIResponses(id="gpt-5.2"),
+        tools=[HackerNewsTools()],
+        markdown=True,
+    )
+
+    agent.print_response(
+        "Tell me about this image and give me the latest news about it.",
+        images=[
+            Image(
+                url="https://upload.wikimedia.org/wikipedia/commons/0/0c/GoldenGateBridge-001.jpg"
+            )
+        ],
+        stream=True,
+    )
+```

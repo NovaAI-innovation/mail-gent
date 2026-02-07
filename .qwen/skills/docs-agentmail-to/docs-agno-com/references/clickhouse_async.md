@@ -1,0 +1,91 @@
+# ClickHouse Async
+
+**Source:** https://docs.agno.com/knowledge/vector-stores/clickhouse/usage/async-clickhouse-db.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# ClickHouse Async
+
+## Code
+
+```python cookbook/08_knowledge/vector_db/clickhouse_db/async_clickhouse.py theme={null}
+import asyncio
+
+from agno.agent import Agent
+from agno.knowledge.knowledge import Knowledge
+from agno.vectordb.clickhouse import Clickhouse
+
+agent = Agent(
+    knowledge=Knowledge(
+        vector_db=Clickhouse(
+            table_name="recipe_documents",
+            host="localhost",
+            port=8123,
+            username="ai",
+            password="ai",
+        ),
+    ),
+    search_knowledge=True,
+    read_chat_history=True,
+)
+
+if __name__ == "__main__":
+    asyncio.run(
+        agent.knowledge.ainsert(url="https://docs.agno.com/introduction/agents.md")
+    )
+
+    asyncio.run(
+        agent.aprint_response("What is the purpose of an Agno Agent?", markdown=True)
+    )
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U clickhouse-connect pypdf openai agno
+    ```
+  </Step>
+
+  <Step title="Run ClickHouse">
+    ```bash  theme={null}
+    docker run -d \
+    -e CLICKHOUSE_DB=ai \
+    -e CLICKHOUSE_USER=ai \
+    -e CLICKHOUSE_PASSWORD=ai \
+    -e CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1 \
+    -v clickhouse_data:/var/lib/clickhouse/ \
+    -v clickhouse_log:/var/log/clickhouse-server/ \
+    -p 8123:8123 \
+    -p 9000:9000 \
+    --ulimit nofile=262144:262144 \
+    --name clickhouse-server \
+    clickhouse/clickhouse-server
+    ```
+  </Step>
+
+  <Step title="Set environment variables">
+    ```bash  theme={null}
+    export CLICKHOUSE_HOST="localhost"
+    export CLICKHOUSE_PORT="8123"
+    export CLICKHOUSE_USER="ai"
+    export CLICKHOUSE_PASSWORD="ai"
+    export CLICKHOUSE_DB="ai"
+    export OPENAI_API_KEY=xxx
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python cookbook/08_knowledge/vector_db/clickhouse_db/async_clickhouse.py
+    ```
+  </Step>
+</Steps>

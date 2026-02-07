@@ -1,0 +1,103 @@
+# Slack Agent with User Memory
+
+**Source:** https://docs.agno.com/agent-os/usage/interfaces/slack/agent-with-user-memory.md
+**Section:** Docs
+
+**Description:** Personalized Slack agent that remembers user information and preferences
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Slack Agent with User Memory
+
+> Personalized Slack agent that remembers user information and preferences
+
+## Code
+
+```python cookbook/os/interfaces/slack/agent_with_user_memory.py theme={null}
+from textwrap import dedent
+from agno.agent import Agent
+from agno.db.sqlite import SqliteDb
+from agno.memory.manager import MemoryManager
+from agno.models.anthropic.claude import Claude
+from agno.os.app import AgentOS
+from agno.os.interfaces.slack import Slack
+from agno.tools.hackernews import HackerNewsTools
+
+agent_db = SqliteDb(session_table="agent_sessions", db_file="tmp/persistent_memory.db")
+
+memory_manager = MemoryManager(
+    memory_capture_instructions="""\
+                    Collect User's name,
+                    Collect Information about user's passion and hobbies,
+                    Collect Information about the users likes and dislikes,
+                    Collect information about what the user is doing with their life right now
+                """,
+    model=Claude(id="claude-sonnet-4-5"),
+)
+
+personal_agent = Agent(
+    name="Basic Agent",
+    model=Claude(id="claude-sonnet-4-20250514"),
+    tools=[HackerNewsTools()],
+    add_history_to_context=True,
+    num_history_runs=3,
+    add_datetime_to_context=True,
+    markdown=True,
+    db=agent_db,
+    memory_manager=memory_manager,
+    update_memory_on_run=True,
+    instructions=dedent("""
+        You are a personal AI friend in a slack chat, your purpose is to chat with the user about things and make them feel good.
+        First introduce yourself and ask for their name then, ask about themeselves, their hobbies, what they like to do and what they like to talk about.
+        Use the HackerNews tools to find latest information about things in the conversations
+                        """),
+    debug_mode=True,
+)
+
+agent_os = AgentOS(
+    agents=[personal_agent],
+    interfaces=[Slack(agent=personal_agent)],
+)
+app = agent_os.get_app()
+
+if __name__ == "__main__":
+    agent_os.serve(app="agent_with_user_memory:app", reload=True)
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set Environment Variables">
+    ```bash  theme={null}
+    export SLACK_TOKEN=xoxb-your-bot-user-token
+    export SLACK_SIGNING_SECRET=your-signing-secret
+    export ANTHROPIC_API_KEY=your-anthropic-api-key
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno
+    ```
+  </Step>
+
+  <Step title="Run Example">
+    ```bash  theme={null}
+    python cookbook/os/interfaces/slack/agent_with_user_memory.py
+    ```
+  </Step>
+</Steps>
+
+## Key Features
+
+* **Memory Management**: Remembers user names, hobbies, preferences, and activities
+* **HackerNews Integration**: Access to current information during conversations
+* **Personalized Responses**: Uses stored memories for contextualized replies
+* **Slack Integration**: Works with direct messages and group conversations
+* **Claude Powered**: Advanced reasoning and conversation capabilities

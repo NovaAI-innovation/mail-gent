@@ -1,0 +1,195 @@
+# Remote Workflow
+
+**Source:** https://docs.agno.com/agent-os/remote-execution/remote-workflow.md
+**Section:** Docs
+
+**Description:** Execute workflows hosted on remote AgentOS instances
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Remote Workflow
+
+> Execute workflows hosted on remote AgentOS instances
+
+`RemoteWorkflow` allows you to execute workflows that are running on a remote AgentOS instance. This enables you to leverage complex multi-step workflows without hosting them locally.
+
+## Prerequisites
+
+You need a running AgentOS instance with at least one workflow configured. See [Creating Your First OS](/agent-os/run-your-os) to set one up.
+
+## Basic Usage
+
+```python  theme={null}
+import asyncio
+from agno.workflow import RemoteWorkflow
+
+async def main():
+    # Connect to a remote workflow
+    workflow = RemoteWorkflow(
+        base_url="http://localhost:7778",  # Running on localhost for this example
+        workflow_id="qa-workflow",
+    )
+    
+    # Run the workflow
+    response = await workflow.arun("What are the benefits of using Python?")
+    print(response.content)
+    print(f"Status: {response.status}")
+
+asyncio.run(main())
+```
+
+## Streaming Responses
+
+Stream workflow responses in real-time:
+
+```python  theme={null}
+from agno.workflow import RemoteWorkflow
+
+workflow = RemoteWorkflow(
+    base_url="http://localhost:7778",  # Running on localhost for this example
+    workflow_id="story-workflow",
+)
+
+print("Workflow Response: ", end="", flush=True)
+async for event in workflow.arun(
+    "Write a story about space exploration",
+    stream=True,
+):
+    # Handle content from agent steps or workflow completion
+    if event.event == "RunContent" and hasattr(event, "content"):
+        print(event.content, end="", flush=True)
+    elif event.event == "WorkflowAgentCompleted" and hasattr(event, "content"):
+        if event.content:
+            print(event.content, end="", flush=True)
+```
+
+## Passing Additional Data
+
+Send additional structured data to the workflow:
+
+```python  theme={null}
+from agno.workflow import RemoteWorkflow
+
+workflow = RemoteWorkflow(
+    base_url="http://localhost:7778",  # Running on localhost for this example
+    workflow_id="analysis-workflow",
+)
+
+response = await workflow.arun(
+    "Analyze the data",
+    additional_data={
+        "metrics": {"revenue": 1000000, "growth": 0.15},
+        "period": "Q4 2024",
+    },
+)
+```
+
+## Configuration Access
+
+Access the remote workflow's configuration:
+
+```python  theme={null}
+from agno.workflow import RemoteWorkflow
+
+workflow = RemoteWorkflow(
+    base_url="http://localhost:7778",  # Running on localhost for this example
+    workflow_id="qa-workflow",
+)
+
+# Access cached properties
+print(f"Name: {workflow.name}")
+print(f"Description: {workflow.description}")
+
+# Get fresh configuration
+config = await workflow.get_workflow_config()
+
+# Force refresh cache
+workflow.refresh_config()
+```
+
+## Using in Gateway
+
+Register remote workflows in an AgentOS gateway:
+
+```python  theme={null}
+from agno.workflow import RemoteWorkflow
+from agno.os import AgentOS
+
+gateway = AgentOS(
+    id="api-gateway",
+    workflows=[
+        RemoteWorkflow(base_url="http://server-1:7777", workflow_id="qa-workflow"),
+        RemoteWorkflow(base_url="http://server-2:7777", workflow_id="analysis-workflow"),
+    ],
+)
+
+gateway.serve(port=7777)
+```
+
+## Authentication
+
+For authenticated AgentOS instances:
+
+```python  theme={null}
+from agno.workflow import RemoteWorkflow
+
+workflow = RemoteWorkflow(
+    base_url="http://localhost:7777",
+    workflow_id="qa-workflow",
+)
+
+response = await workflow.arun(
+    "Process this request",
+    auth_token="your-jwt-token",
+)
+```
+
+## Error Handling
+
+```python  theme={null}
+from agno.workflow import RemoteWorkflow
+from agno.exceptions import RemoteServerUnavailableError
+
+workflow = RemoteWorkflow(
+    base_url="http://localhost:7777",
+    workflow_id="qa-workflow",
+)
+
+try:
+    response = await workflow.arun("Hello")
+except RemoteServerUnavailableError as e:
+    print(f"Cannot connect to server: {e.message}")
+    # Handle fallback logic
+```
+
+## A2A Protocol Support
+
+`RemoteWorkflow` can also connect to any A2A-compatible server, enabling communication with workflows built using other frameworks.
+
+### Connecting to Agno AgentOS via A2A interface
+
+```python  theme={null}
+from agno.workflow import RemoteWorkflow
+
+workflow = RemoteWorkflow(
+    base_url="http://localhost:7778/a2a/workflows/my-workflow",  # Running on localhost for this example
+    workflow_id="my-workflow",
+    protocol="a2a",
+)
+
+response = await workflow.arun("Write a story about space exploration")
+print(response.content)
+
+# Streaming is also supported
+async for event in workflow.arun("Run the workflow", stream=True):
+    if event.event == "RunContent" and hasattr(event, "content"):
+        print(event.content, end="", flush=True)
+```
+
+## Reference
+
+For complete API documentation, see [RemoteWorkflow Reference](/reference/workflows/remote-workflow).

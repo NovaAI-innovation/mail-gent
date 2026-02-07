@@ -1,0 +1,82 @@
+# Generate Music using Models Lab
+
+**Source:** https://docs.agno.com/multimodal/agent/usage/generate-music-agent.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Generate Music using Models Lab
+
+## Code
+
+```python  theme={null}
+import os
+from uuid import uuid4
+
+import requests
+from agno.agent import Agent, RunOutput
+from agno.models.openai import OpenAIResponses
+from agno.tools.models_labs import FileType, ModelsLabTools
+from agno.utils.log import logger
+
+agent = Agent(
+    name="ModelsLab Music Agent",
+    id="ml_music_agent",
+    model=OpenAIResponses(id="gpt-5.2"),
+        tools=[ModelsLabTools(wait_for_completion=True, file_type=FileType.MP3)],
+    description="You are an AI agent that can generate music using the ModelsLabs API.",
+    instructions=[
+        "When generating music, use the `generate_media` tool with detailed prompts that specify:",
+        "- The genre and style of music (e.g., classical, jazz, electronic)",
+        "- The instruments and sounds to include",
+        "- The tempo, mood and emotional qualities",
+        "- The structure (intro, verses, chorus, bridge, etc.)",
+        "Create rich, descriptive prompts that capture the desired musical elements.",
+        "Focus on generating high-quality, complete instrumental pieces.",
+    ],
+    markdown=True,
+    debug_mode=True,
+)
+
+music: RunOutput = agent.run("Generate a 30 second classical music piece")
+
+save_dir = "audio_generations"
+
+if music.audio is not None and len(music.audio) > 0:
+    url = music.audio[0].url
+    response = requests.get(url)
+    os.makedirs(save_dir, exist_ok=True)
+    filename = f"{save_dir}/sample_music{uuid4()}.wav"
+    with open(filename, "wb") as f:
+        f.write(response.content)
+    logger.info(f"Music saved to {filename}")
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set your API key">
+    ```bash  theme={null}
+    export OPENAI_API_KEY=xxx
+    export MODELS_LAB_API_KEY=xxx
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U openai agno
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python cookbook/agent_basics/multimodal/generate_music_agent.py
+    ```
+  </Step>
+</Steps>

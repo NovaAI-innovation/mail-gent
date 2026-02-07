@@ -1,0 +1,109 @@
+# Research Team
+
+**Source:** https://docs.agno.com/agent-os/usage/interfaces/ag-ui/team.md
+**Section:** Docs
+
+**Description:** Multi-agent research team with specialized roles and web interface
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Research Team
+
+> Multi-agent research team with specialized roles and web interface
+
+## Code
+
+```python cookbook/os/interfaces/agui/research_team.py theme={null}
+from agno.agent.agent import Agent
+from agno.models.openai import OpenAIResponses
+from agno.os.app import AgentOS
+from agno.os.interfaces.agui.agui import AGUI
+from agno.team import Team
+
+researcher = Agent(
+    name="researcher",
+    role="Research Assistant",
+    model=OpenAIResponses(id="gpt-5.2"),
+    instructions="You are a research assistant. Find information and provide detailed analysis.",
+    markdown=True,
+)
+
+writer = Agent(
+    name="writer",
+    role="Content Writer", 
+    model=OpenAIResponses(id="gpt-5.2"),
+    instructions="You are a content writer. Create well-structured content based on research.",
+    markdown=True,
+)
+
+research_team = Team(
+    members=[researcher, writer],
+    name="research_team",
+    instructions="""
+    You are a research team that helps users with research and content creation.
+    First, use the researcher to gather information, then use the writer to create content.
+    """,
+    show_members_responses=True,
+    get_member_information_tool=True,
+    add_member_tools_to_context=True,
+)
+
+# Setup our AgentOS app
+agent_os = AgentOS(
+    teams=[research_team],
+    interfaces=[AGUI(team=research_team)],
+)
+app = agent_os.get_app()
+
+
+if __name__ == "__main__":
+    """Run our AgentOS.
+
+    You can see the configuration and available apps at:
+    http://localhost:7777/config
+
+    """
+    agent_os.serve(app="research_team:app", reload=True)
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set Environment Variables">
+    ```bash  theme={null}
+    export OPENAI_API_KEY=your_openai_api_key
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno
+    ```
+  </Step>
+
+  <Step title="Run Example">
+    ```bash  theme={null}
+    python cookbook/os/interfaces/agui/research_team.py
+    ```
+  </Step>
+</Steps>
+
+## Key Features
+
+* **Multi-Agent Collaboration**: Researcher and writer working together
+* **Specialized Roles**: Distinct expertise and responsibilities
+* **Transparent Process**: See individual agent contributions
+* **Coordinated Workflow**: Structured research-to-content pipeline
+* **Web Interface**: Professional team interaction through AG-UI
+
+## Team Members
+
+* **Researcher**: Information gathering and analysis specialist
+* **Writer**: Content creation and structuring expert
+* **Workflow**: Sequential collaboration from research to final content

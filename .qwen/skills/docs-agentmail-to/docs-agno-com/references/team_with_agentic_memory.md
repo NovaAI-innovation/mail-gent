@@ -1,0 +1,99 @@
+# Team with Agentic Memory
+
+**Source:** https://docs.agno.com/memory/team/team-with-agentic-memory.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Team with Agentic Memory
+
+This example demonstrates how to use agentic memory with a team. Unlike simple memory storage, agentic memory allows the AI to actively create, update, and delete user memories during each run based on the conversation context, providing intelligent memory management.
+
+## Code
+
+```python team_with_agentic_memory.py theme={null}
+"""
+This example shows you how to use persistent memory with an Agent.
+
+During each run the Agent can create/update/delete user memories.
+
+To enable this, set `enable_agentic_memory=True` in the Agent config.
+"""
+
+from agno.agent import Agent
+from agno.db.postgres import PostgresDb
+from agno.memory import MemoryManager  # noqa: F401
+from agno.models.openai import OpenAIResponses
+from agno.team import Team
+
+db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
+db = PostgresDb(db_url=db_url)
+
+john_doe_id = "john_doe@example.com"
+
+agent = Agent(
+    model=OpenAIResponses(id="gpt-5.2"),
+)
+
+team = Team(
+    model=OpenAIResponses(id="gpt-5.2"),
+    members=[agent],
+    db=db,
+    enable_agentic_memory=True,
+)
+
+team.print_response(
+    "My name is John Doe and I like to hike in the mountains on weekends.",
+    stream=True,
+    user_id=john_doe_id,
+)
+
+team.print_response("What are my hobbies?", stream=True, user_id=john_doe_id)
+
+# More examples:
+# agent.print_response(
+#     "Remove all existing memories of me.",
+#     stream=True,
+#     user_id=john_doe_id,
+# )
+
+# agent.print_response(
+#     "My name is John Doe and I like to paint.", stream=True, user_id=john_doe_id
+# )
+
+# agent.print_response(
+#     "I don't pain anymore, i draw instead.", stream=True, user_id=john_doe_id
+# )
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai psycopg sqlalchemy
+    ```
+  </Step>
+
+  <Step title="Set up PostgreSQL database">
+    Start PostgreSQL with pgvector and update the connection string in the code as needed.
+  </Step>
+
+  <Step title="Set environment variables">
+    ```bash  theme={null}
+    export OPENAI_API_KEY=your_openai_api_key_here
+    ```
+  </Step>
+
+  <Step title="Run the example">
+    ```bash  theme={null}
+    python team_with_agentic_memory.py
+    ```
+  </Step>
+</Steps>

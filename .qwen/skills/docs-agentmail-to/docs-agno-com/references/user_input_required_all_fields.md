@@ -1,0 +1,111 @@
+# User Input Required All Fields
+
+**Source:** https://docs.agno.com/hitl/usage/user-input-required-all-fields.md
+**Section:** Docs
+
+**Description:** This example demonstrates how to use the requires_user_input parameter to collect input for all fields in a tool. It shows how to handle user input schema and collect values for each required field.
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# User Input Required All Fields
+
+> This example demonstrates how to use the requires_user_input parameter to collect input for all fields in a tool. It shows how to handle user input schema and collect values for each required field.
+
+<Steps>
+  <Step title="Create a Python file">
+    ```python user_input_required_all_fields.py theme={null}
+    from typing import List
+
+    from agno.agent import Agent
+    from agno.db.sqlite import SqliteDb
+    from agno.models.openai import OpenAIResponses
+    from agno.tools import tool
+    from agno.tools.function import UserInputField
+    from agno.utils import pprint
+
+
+    @tool(requires_user_input=True)
+    def send_email(subject: str, body: str, to_address: str) -> str:
+        """
+        Send an email.
+
+        Args:
+            subject (str): The subject of the email.
+            body (str): The body of the email.
+            to_address (str): The address to send the email to.
+        """
+        return f"Sent email to {to_address} with subject {subject} and body {body}"
+
+
+    agent = Agent(
+        model=OpenAIResponses(id="gpt-5.2"),
+        tools=[send_email],
+        markdown=True,
+        db=SqliteDb(db_file="tmp/example.db"),
+    )
+
+    run_response = agent.run("Send an email please")
+    if run_response.is_paused:  # Or agent.run_response.is_paused
+        for requirement in run_response.active_requirements:
+            if requirement.needs_user_input:
+                input_schema: List[UserInputField] = requirement.user_input_schema  # type: ignore
+
+                for field in input_schema:
+                    # Get user input for each field in the schema
+                    field_type = field.field_type
+                    field_description = field.description
+
+                    # Display field information to the user
+                    print(f"\nField: {field.name}")
+                    print(f"Description: {field_description}")
+                    print(f"Type: {field_type}")
+
+                    # Get user input
+                    if field.value is None:
+                        user_value = input(f"Please enter a value for {field.name}: ")
+
+                    # Update the field value
+                    field.value = user_value
+
+        run_response = agent.continue_run(
+            run_id=run_response.run_id,
+            requirements=run_response.requirements,
+        )
+        pprint.pprint_run_response(run_response)
+
+    # Or for simple debug flow
+    # agent.print_response("Send an email please")
+
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+        export OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+        $Env:OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python user_input_required_all_fields.py
+    ```
+  </Step>
+</Steps>

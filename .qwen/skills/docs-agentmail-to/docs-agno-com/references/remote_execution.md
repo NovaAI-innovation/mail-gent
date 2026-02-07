@@ -1,0 +1,180 @@
+# Remote Execution
+
+**Source:** https://docs.agno.com/agent-os/remote-execution/overview.md
+**Section:** Docs
+
+**Description:** Execute agents, teams, and workflows hosted on remote AgentOS instances
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Remote Execution
+
+> Execute agents, teams, and workflows hosted on remote AgentOS instances
+
+Remote execution enables you to run agents, teams, and workflows that are hosted on remote AgentOS instances. This is useful for:
+
+* **Distributed architectures**: Run specialized agents on different servers
+* **Microservices**: Decompose your agentic system into independent services
+* **Gateway pattern**: Create a unified API for multiple AgentOS instances
+
+<Note>
+  Agno supports remote connections to AgentOS instances and A2A-compatible servers.
+
+  See [RemoteAgent](/agent-os/remote-execution/remote-agent), [RemoteTeam](/agent-os/remote-execution/remote-team), and [RemoteWorkflow](/agent-os/remote-execution/remote-workflow) for more information.
+</Note>
+
+## Core Components
+
+<CardGroup cols={2}>
+  <Card title="RemoteAgent" icon="robot" href="/agent-os/remote-execution/remote-agent">
+    Execute agents on remote AgentOS instances
+  </Card>
+
+  <Card title="RemoteTeam" icon="users" href="/agent-os/remote-execution/remote-team">
+    Execute teams on remote AgentOS instances
+  </Card>
+
+  <Card title="RemoteWorkflow" icon="diagram-project" href="/agent-os/remote-execution/remote-workflow">
+    Execute workflows on remote AgentOS instances
+  </Card>
+
+  <Card title="AgentOSClient" icon="plug" href="/reference/clients/agentos-client">
+    Low-level client for direct API access to any AgentOS endpoint
+  </Card>
+
+  <Card title="A2AClient" icon="plug" href="/reference/clients/a2a-client">
+    Low-level client for direct API access to any A2A endpoint
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+### 1. Set Up a Remote AgentOS Server
+
+First, create and run an AgentOS instance that will host your agents:
+
+```python  theme={null}
+# server.py
+from agno.agent import Agent
+from agno.models.openai import OpenAIResponses
+from agno.os import AgentOS
+
+agent = Agent(
+    name="Assistant",
+    id="assistant-agent",
+    model=OpenAIResponses(id="gpt-5.2"),
+    instructions="You are a helpful assistant.",
+)
+
+agent_os = AgentOS(
+    id="remote-server",
+    agents=[agent],
+)
+app = agent_os.get_app()
+
+if __name__ == "__main__":
+    agent_os.serve(app="server:app", port=7778)
+```
+
+Run the server:
+
+```bash  theme={null}
+python server.py
+```
+
+### 2. Connect and Execute Remotely
+
+Use `RemoteAgent` to execute the agent from another application:
+
+```python  theme={null}
+import asyncio
+from agno.agent import RemoteAgent
+
+async def main():
+    agent = RemoteAgent(
+        base_url="http://localhost:7778",  # Running on localhost for this example
+        agent_id="assistant-agent",
+    )
+    
+    response = await agent.arun("Hello, how are you?")
+    print(response.content)
+
+asyncio.run(main())
+```
+
+### 3. Create an AgentOS Gateway
+
+Create a gateway that aggregates multiple AgentOS instances:
+
+```python  theme={null}
+from agno.agent import RemoteAgent
+from agno.team import RemoteTeam
+from agno.workflow import RemoteWorkflow
+from agno.os import AgentOS
+
+local_agent = Agent(
+    name="Research Agent",
+    id="research-agent",
+    model=OpenAIResponses(id="gpt-5.2"),
+    instructions="You are a research assistant.",
+)
+
+gateway = AgentOS(
+    id="api-gateway",
+    agents=[
+        local_agent,
+        RemoteAgent(base_url="http://remote-server:7778", agent_id="assistant-agent"),
+    ],
+)
+app = gateway.get_app()
+
+if __name__ == "__main__":
+    gateway.serve(app="gateway:app", port=7777)
+```
+
+See [Gateway Pattern](/agent-os/remote-execution/gateway) for more details.
+
+## Connecting to A2A-compatible servers
+
+Using the A2A protocol, you can connect to any A2A-compatible server.
+
+Here is an example of connecting to a Google ADK A2A server:
+
+```python  theme={null}
+from agno.agent import RemoteAgent
+
+# Connect to a Google ADK A2A server
+agent = RemoteAgent(
+    base_url="http://localhost:8001",  # Running on localhost for this example
+    agent_id="facts_agent",
+    protocol="a2a",
+    a2a_protocol="json-rpc",  # Google ADK uses JSON-RPC
+)
+
+response = await agent.arun("Tell me an interesting fact")
+print(response.content)
+```
+
+## Learn More
+
+<CardGroup cols={2}>
+  <Card title="Remote Agent" icon="robot" href="/agent-os/remote-execution/remote-agent">
+    Detailed guide on using RemoteAgent
+  </Card>
+
+  <Card title="Remote Team" icon="users" href="/agent-os/remote-execution/remote-team">
+    Detailed guide on using RemoteTeam
+  </Card>
+
+  <Card title="Remote Workflow" icon="diagram-project" href="/agent-os/remote-execution/remote-workflow">
+    Detailed guide on using RemoteWorkflow
+  </Card>
+
+  <Card title="Gateway Pattern" icon="server" href="/agent-os/remote-execution/gateway">
+    Create a unified API gateway for multiple AgentOS instances
+  </Card>
+</CardGroup>

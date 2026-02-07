@@ -1,0 +1,64 @@
+# Providing Location
+
+**Source:** https://docs.agno.com/context/agent/location-instructions.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Providing Location
+
+This example demonstrates how to add location context to agent instructions, enabling the agent to provide location-specific responses and search for local information.
+
+## Code
+
+```python location_instructions.py theme={null}
+from agno.agent import Agent
+from agno.models.openai import OpenAIResponses
+from agno.tools.hackernews import HackerNewsTools
+
+agent = Agent(
+    model=OpenAIResponses(id="gpt-5.2"),
+    add_location_to_context=True,
+    tools=[HackerNewsTools(cache_results=True)],
+)
+agent.print_response("What city am I in?", stream=True)
+agent.print_response("Search for tech news relevant to my location", stream=True)
+```
+
+## Usage
+
+<Steps>
+  <Step title="Create a Python file">
+    Create `location_instructions.py` with the code above.
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno openai
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+      ```bash Mac/Linux theme={null}
+      export OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+
+      ```bash Windows theme={null}
+      $Env:OPENAI_API_KEY="your_openai_api_key_here"
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash  theme={null}
+    python location_instructions.py
+    ```
+  </Step>
+</Steps>

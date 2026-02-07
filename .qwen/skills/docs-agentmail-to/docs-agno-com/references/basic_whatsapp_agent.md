@@ -1,0 +1,83 @@
+# Basic WhatsApp Agent
+
+**Source:** https://docs.agno.com/agent-os/usage/interfaces/whatsapp/basic.md
+**Section:** Docs
+
+**Description:** Create a basic AI agent that integrates with WhatsApp Business API
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Basic WhatsApp Agent
+
+> Create a basic AI agent that integrates with WhatsApp Business API
+
+## Code
+
+```python cookbook/os/interfaces/whatsapp/basic.py theme={null}
+from agno.agent import Agent
+from agno.db.sqlite import SqliteDb
+from agno.models.openai import OpenAIResponses
+from agno.os import AgentOS
+from agno.os.interfaces.whatsapp import Whatsapp
+
+agent_db = SqliteDb(db_file="tmp/persistent_memory.db")
+basic_agent = Agent(
+    name="Basic Agent",
+    model=OpenAIResponses(id="gpt-5.2"),
+    db=agent_db,
+    add_history_to_context=True,
+    num_history_runs=3,
+    add_datetime_to_context=True,
+    markdown=True,
+)
+
+agent_os = AgentOS(
+    agents=[basic_agent],
+    interfaces=[Whatsapp(agent=basic_agent)],
+)
+app = agent_os.get_app()
+
+if __name__ == "__main__":
+    agent_os.serve(app="basic:app", reload=True)
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set Environment Variables">
+    ```bash  theme={null}
+    export WHATSAPP_ACCESS_TOKEN=your_whatsapp_access_token
+    export WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+    export WHATSAPP_WEBHOOK_URL=your_webhook_url
+    export WHATSAPP_VERIFY_TOKEN=your_verify_token
+    export OPENAI_API_KEY=your_openai_api_key
+    export APP_ENV=development
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash  theme={null}
+    uv pip install -U agno
+    ```
+  </Step>
+
+  <Step title="Run Example">
+    ```bash  theme={null}
+    python cookbook/os/interfaces/whatsapp/basic.py
+    ```
+  </Step>
+</Steps>
+
+## Key Features
+
+* **WhatsApp Integration**: Responds to messages automatically
+* **Conversation History**: Maintains context with last 3 interactions
+* **Persistent Memory**: SQLite database for session storage
+* **DateTime Context**: Time-aware responses
+* **Markdown Support**: Rich text formatting in messages

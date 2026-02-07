@@ -1,0 +1,63 @@
+# N1N
+
+**Source:** https://docs.agno.com/reference/models/n1n.md
+**Section:** Docs
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# N1N
+
+Access [n1n.ai](https://n1n.ai) models through an OpenAI-compatible interface.
+
+## Authentication
+
+Set the `N1N_API_KEY` environment variable:
+
+```bash  theme={null}
+export N1N_API_KEY=your-api-key
+```
+
+## Parameters
+
+| Parameter  | Type            | Default                   | Description                                     |
+| ---------- | --------------- | ------------------------- | ----------------------------------------------- |
+| `id`       | `str`           | `"gpt-4o"`                | The ID of the model to use                      |
+| `name`     | `str`           | `"N1N"`                   | The name of the model                           |
+| `provider` | `str`           | `"N1N"`                   | The provider of the model                       |
+| `api_key`  | `Optional[str]` | `None`                    | The API key (defaults to `N1N_API_KEY` env var) |
+| `base_url` | `str`           | `"https://api.n1n.ai/v1"` | The base URL for the N1N API                    |
+
+N1N extends the OpenAI-compatible interface and supports most parameters from [OpenAILike](/reference/models/openai-like).
+
+## Usage
+
+### Basic
+
+```python  theme={null}
+from agno.agent import Agent
+from agno.models.n1n import N1N
+
+agent = Agent(model=N1N(id="gpt-4o"), markdown=True)
+
+agent.print_response("Share a 2 sentence horror story.")
+```
+
+### With Tools
+
+```python  theme={null}
+from agno.agent import Agent
+from agno.models.n1n import N1N
+from agno.tools.websearch import WebSearchTools
+
+agent = Agent(
+    model=N1N(id="gpt-5-mini"),
+    markdown=True,
+    tools=[WebSearchTools()],
+)
+
+agent.print_response("What is happening in France?", stream=True)
+```

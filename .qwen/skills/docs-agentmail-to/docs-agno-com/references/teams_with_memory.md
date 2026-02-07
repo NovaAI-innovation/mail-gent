@@ -1,0 +1,42 @@
+# Teams with Memory
+
+**Source:** https://docs.agno.com/memory/team/overview.md
+**Section:** Docs
+
+**Description:** Use persistent memory with teams.
+
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.agno.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Teams with Memory
+
+> Use persistent memory with teams.
+
+The team can also manage user memories, just like agents:
+
+```python  theme={null}
+from agno.team import Team
+from agno.db.sqlite import SqliteDb
+
+db = SqliteDb(db_file="agno.db")
+
+team_with_memory = Team(
+    name="Team with Memory",
+    members=[agent1, agent2],
+    db=db,
+    update_memory_on_run=True,
+)
+
+team_with_memory.print_response("Hi! My name is John Doe.")
+team_with_memory.print_response("What is my name?")
+```
+
+See more in the [Memory](/memory/overview) section.
+
+## Developer Resources
+
+* View the [Team schema](/reference/teams/team)
+* View [Cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/04_teams/memory/)

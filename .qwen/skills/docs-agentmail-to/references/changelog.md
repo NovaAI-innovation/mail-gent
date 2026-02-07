@@ -1,0 +1,10 @@
+# Changelog
+
+**Source:** https://docs.agentmail.to/changelog.mdx
+**Section:** Docs
+
+---
+
+# AgentMail Changelog
+
+Latest API and SDK updates. [Subscribe via RSS](https://docs.agentmail.to/changelog.rss) · [Discord](https://discord.gg/hTYatWYWBc)
